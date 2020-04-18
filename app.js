@@ -4,7 +4,7 @@ let ctx = myCanvas.getContext("2d");
 myCanvas.width = 1024;
 myCanvas.height = 768;
 
-const FPS = 1;
+const FPS = 10;
 let x = 10;
 let y = 10;
 let move = myCanvas.width;
@@ -20,29 +20,32 @@ function mainLoop() {
 	ctx.fillRect(0, 0, myCanvas.width, myCanvas.height);	
 
 	ctx.strokeStyle = 'white';
-	ctx.lineWidth = 2;
-	
+	ctx.lineWidth = 2;	
 	ctx.beginPath();
+	x = arrMountain[0].x;
 	ctx.moveTo(x, 100);
-	for ( let i = 0; i < 10; i++){		
-		x = arrMountain[i].x;
-		ctx.lineTo(x, arrMountain[i].y);
-	}
-	ctx.stroke();		
+	for (let i = 1; i < 10; i++){
+	
+		x += arrMountain[i].x;
+		ctx.lineTo(x, arrMountain[i].y);	
+		ctx.stroke();
+		//arrMountain[i].x+=1;
+	}	
+	//shift.arrMountain();
+	arrMountain[0].x -= 5;
+	//createMountains();
+		
 
 }
 
-function createMountains(){
-	for (let i = 0; i < 10; i++){
+function createMountains(){	
+	for (let i = 0; i < 10; i++){	
 		let mountain = {
-			x: Math.random()*20*size,
-			y: Math.random()*(51*size-1*size)+1*size,	
-			xv: 1,	
+				x: Math.random()*20*size,
+				y: Math.random()*(51*size-1*size)+1*size,	
+				xv: 1,	
 		}
-		for (let i = 1; i < 10; i++){
-			mountain[i].x = mountain[i].x+mountain[i-1].x
-			arrMountain.push(mountain[i]);
-		}	
+	arrMountain.push(mountain);	
 	}
 }
 
