@@ -1,12 +1,13 @@
 // начало проекта 11.04.20
 let myCanvas = document.getElementById("my_canvas");
 let ctx = myCanvas.getContext("2d");
-myCanvas.width = 1024*2;
-myCanvas.height = 1100;
+myCanvas.width = 1024;
+myCanvas.height = 768;
 
 const FPS = 1;
 let x = 10;
 let y = 10;
+let move = myCanvas.width;
 const size = 8;
 let arrMountain = [];
 setInterval(mainLoop, 1000 / FPS);
@@ -20,31 +21,28 @@ function mainLoop() {
 
 	ctx.strokeStyle = 'white';
 	ctx.lineWidth = 2;
+	
 	ctx.beginPath();
-	//ctx.arc(ship.x, ship.y, ship.r, 0, ship.a*2, true);
-	//Math.random() * (max - min) + min
-	x = 10, y = 10;
-	ctx.moveTo(x*size, 100);
-	for ( let i = 0; i < 10; i++){
-		ctx.lineTo(x+=arrMountain[i].x, arrMountain[i].y);
+	ctx.moveTo(x, 100);
+	for ( let i = 0; i < 10; i++){		
+		x = arrMountain[i].x;
+		ctx.lineTo(x, arrMountain[i].y);
 	}
 	ctx.stroke();		
-	ctx.beginPath();
-	//ctx.arc(ship.x, ship.y, ship.r, 0, ship.a*2, true);
-	ctx.moveTo(x = 10*size, 500);
-	for ( let i = 0; i < 10; i++){
-		ctx.lineTo(x+=Math.random()*20*size, Math.random()*(101*size-51*size)+51*size);
-	}
-	ctx.stroke();	
+
 }
 
 function createMountains(){
 	for (let i = 0; i < 10; i++){
 		let mountain = {
 			x: Math.random()*20*size,
-			y: Math.random()*(51*size-1*size)+1*size,		
+			y: Math.random()*(51*size-1*size)+1*size,	
+			xv: 1,	
+		}
+		for (let i = 1; i < 10; i++){
+			mountain[i].x = mountain[i].x+mountain[i-1].x
+			arrMountain.push(mountain[i]);
 		}	
-	arrMountain.push(mountain);
 	}
 }
 
