@@ -4,8 +4,8 @@ let ctx = myCanvas.getContext("2d");
 myCanvas.width = 1024;
 myCanvas.height = 768;
 
-const FPS = 20;
-let x = 100;
+const FPS = 10;
+let x = 1000;
 let y = 100;
 let move = myCanvas.width;
 const size = 8;
@@ -16,34 +16,33 @@ createMountains();
 
 function mainLoop() {	
 
-
+	let randomX = Math.random()*(50-1)+1;
 
 
 	ctx.fillStyle = 'black';
 	ctx.fillRect(0, 0, myCanvas.width, myCanvas.height);	
-	// 	for (let i = 0; i < arrMountain.length; i++){
-	// 	arrMountain[i][0] = arrMountain[i][0]-11;
-	// }
-
-	for (let i = 0; i < arrMountain.length; i++){
+		ctx.lineWidth = 2;
 		ctx.fillStyle = 'white';
-		arrMountain[i][0] = arrMountain[i][0]-11;
-		ctx.fillRect(arrMountain[i][0], arrMountain[i][1] , 10, 10);	
+		ctx.strokeStyle = 'red';
+		ctx.beginPath();
+		ctx.moveTo(arrMountain[0][0],arrMountain[0][1]);
+
+	for (let i = 1; i < arrMountain.length; i++){
+		arrMountain[i][0] -= 50;
+		//ctx.fillRect(arrMountain[i][0], arrMountain[i][1] , 10, 10);
+		ctx.lineTo(arrMountain[i][0], arrMountain[i][1]);
 	}
+			//ctx.closePath();
+		ctx.stroke();	
+	arrMountain.shift();
+	//arrMountain.push([x+= randomX, Math.random()*(200-100)+100]);
 	console.log(arrMountain[0][0]);
-
-
-		arrMountain.shift();
-	 	arrMountain.push([x, Math.random()*(150-100)+100]);
-	
-		
-
 }
 
 function createMountains(){
-	for (let i = 0; i < 80; i++){
-		arrMountain.push([x += 11, Math.random()*(120-100)+100]);
-	}	
+	for (let i = 0; i < 500; i++){
+		arrMountain.push([x += 11, Math.random()*(200-100)+100]);
+	}
 }
 
 function KeyDown(event) {
