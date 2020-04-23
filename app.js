@@ -6,19 +6,19 @@ myCanvas.height = 768;
 
 const FPS = 30;
 //let x = 0;
-let xMax = 50;
-let xMin = 5;
+let xMax = 100;
+let xMin = 20;
 //let y = 0;
 let yMax = 300;
-let yMin = 200;
-let a = 2 // коэффициен расстояния между верхом и низом (от 1 до 2)
+let yMin = 0;
+let a = .4 // коэффициен расстояния между верхом и низом (от 1 до 2)
 let arrMountain = [];
-let pics = 80; //количество пиков
+let pics = 18; //количество пиков
 let gravity = 1;
 
 let ship = {
 	x: myCanvas.width / 2,
-	y: myCanvas.height / 2,	
+	y: myCanvas.height / 2,
 	r: 20,
 	direction: {
 		move: false,
@@ -47,13 +47,40 @@ function mainLoop() {
 		ctx.stroke();
 		ctx.closePath();
 
-				ctx.fillRect(ship.x, ship.y, ship.r, ship.r);
-				if (ship.direction.move == true){					
-					ship.y -= 8;
-				}else {ship.y += gravity}	
+			ctx.fillRect(ship.x, ship.y, ship.r, ship.r);
+			ship.x += ship.direction.x;
+			if (ship.direction.move == true){					
+				ship.y -= 8;
+			}else {ship.y += gravity}	
 
 	drawMountainsUP();
 	drawMountainsDOWN();
+	CollisionMountainsUP();
+}
+
+function CollisionMountainsUP(){
+
+	for (let i = 1; i < (arrMountain.length-1); i++){	
+
+		// let lineShip1 = (ship.x-400)*(500-200); // пример коллизии
+		// let lineShip2 = (100-400)*(ship.y-200);
+		// let lineShip = lineShip1 - lineShip2;
+		// (console.log(lineShip, lineShip1, lineShip2));
+		// if (ship.x > 100 && ship.x < 400 && ship.y > 200 && ship.y < 500 ){
+		// 	if (lineShip > 0 && lineShip < 1000){ship.y -= 1}				
+		// 	if (lineShip < 0 && lineShip > -1000){ship.y += 1}				
+		// }	
+
+		let lineShip1 = (ship.x-arrMountain[i-1][0])*(arrMountain[i][1]-arrMountain[i-1][1]); 
+		let lineShip2 = (arrMountain[i][0]-arrMountain[i-1][0])*(ship.y-arrMountain[i-1][1]);
+		let lineShip = lineShip1 - lineShip2;
+		
+		if (ship.x > arrMountain[i-1][0] && ship.x < arrMountain[i][0]){ //делаем проверку на x отрезках
+			if (lineShip > 0){   // все что выше линии, это плюс
+				ship.y = myCanvas.height/2;
+			}
+		}
+	}
 }
 
 function createMountainsUP(zeroX){
@@ -62,8 +89,8 @@ function createMountainsUP(zeroX){
 	for (let i = 0; i < pics; i++){
 		// let y = Math.random()*(yMax-yMin)+yMin;
 		// let x = Math.random()*(xMax-xMin)+xMin;
-		let x = xMin*2;
-		let y = yMin;
+		let x = xMin*2; //сначала коридор прямой
+		let y = yMax;
 		arrMountain.push([arrMountain[i][0] + x, y]);
 	}
 }
@@ -74,7 +101,7 @@ function createMountainsDOWN(zeroX){
 		//let y = (Math.random()*(yMax-yMin)+yMin) + (yMax - yMin)*a;
 		//let x = Math.random()*(xMax-xMin)+xMin;
 		let x = xMin*2;
-		let y = yMax+yMin;
+		let y = myCanvas.height-yMax;
 		arrMountain2.push([arrMountain2[i][0] + x, y]);
 	}
 }
@@ -100,7 +127,7 @@ function drawMountainsUP(){
 		arrMountain.shift();
 		//a -= .3; // условие сужения туннеля
 	}
-	console.log(a);
+
 }
 
 function drawMountainsDOWN(){	
@@ -113,7 +140,7 @@ function drawMountainsDOWN(){
 	for (let i = 0; i < arrMountain2.length; i++){
 		arrMountain2[i][0] -= 1;
 	}	
-	let y = (Math.random()*(yMax-yMin)+yMin) + (yMax - yMin)*a;
+	let y = (Math.random()*(myCanvas.height-yMax*a)+yMax*a);
 	let x = Math.random()*(xMax-xMin)+xMin;
 
 	if (arrMountain2[arrMountain2.length-1][0] <= myCanvas.width-100){		
@@ -127,38 +154,36 @@ function drawMountainsDOWN(){
 
 function KeyDown(event) {
 	switch(event.keyCode) {
-		case 32:			
+		case 32:
+			ship.direction.move = true;					
 			break;
 		case 37:	
-			ship.x -= 10;
+			ship.direction.x -= 1;
 			break;
 		case 38:	
+			//ship.y -= 1;
 			break;
 		case 39:
-			ship.x += 10;
+			ship.direction.x += 1;
 			break;
-		case 40:
-		ship.direction.move = true;
-
+		case 40:				
 			break;
 	}
 }
 
 function KeyUp(event) {
 	switch(event.keyCode) {
-		case 32:		
+		case 32:	
+		ship.direction.move = false;	
 			break;
 		case 37:			
 			break;
 		case 38:	
-		ship.direction.move = false;	
-		//ship.direction.y = 0;	
 			break;
 		case 39:			
 			break;
 		case 40:
-		ship.direction.move = false;
-
+			
 			break;	
 	}
 }
