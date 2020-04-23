@@ -4,14 +4,15 @@ let ctx = myCanvas.getContext("2d");
 myCanvas.width = 1024;
 myCanvas.height = 768;
 
-const FPS = 30;
+const FPS = 60;
 //let x = 0;
 let xMax = 100;
 let xMin = 20;
 //let y = 0;
 let yMax = 300;
-let yMin = 0;
-let a = .4 // коэффициен расстояния между верхом и низом (от 1 до 2)
+let yMin = 20;
+let a = 2 // коэффициен расстояния между верхом и низом (от 1 до 2)
+let av = .01 // скорость сужения (уменьшения коэффициента)
 let arrMountain = [];
 let pics = 18; //количество пиков
 let gravity = 1;
@@ -49,6 +50,14 @@ function mainLoop() {
 
 			ctx.fillRect(ship.x, ship.y, ship.r, ship.r);
 			ship.x += ship.direction.x;
+			if (ship.x <= 100){
+				ship.x = 100;
+				ship.direction.x = -ship.direction.x/2;
+			}
+			if (ship.x >= myCanvas.width-100){
+				ship.x = myCanvas.width-100;
+				ship.direction.x = -ship.direction.x/2;
+			}
 			if (ship.direction.move == true){					
 				ship.y -= 8;
 			}else {ship.y += gravity}	
@@ -56,6 +65,7 @@ function mainLoop() {
 	drawMountainsUP();
 	drawMountainsDOWN();
 	CollisionMountainsUP();
+	CollisionMountainsDOWN();
 }
 
 function CollisionMountainsUP(){
@@ -83,25 +93,40 @@ function CollisionMountainsUP(){
 	}
 }
 
-function createMountainsUP(zeroX){
-	arrMountain=[[zeroX,100]];
+function CollisionMountainsDOWN(){
+
+	for (let i = 1; i < (arrMountain2.length-1); i++){	
+		let lineShip1 = (ship.x-arrMountain2[i-1][0])*(arrMountain2[i][1]-arrMountain2[i-1][1]); 
+		let lineShip2 = (arrMountain2[i][0]-arrMountain2[i-1][0])*(ship.y-arrMountain2[i-1][1]);
+		let lineShip = lineShip1 - lineShip2;
+		
+		if (ship.x > arrMountain2[i-1][0] && ship.x < arrMountain2[i][0]){ //делаем проверку на x отрезках
+			if (lineShip < 0){   // все что выше линии, это плюс
+				ship.y = myCanvas.height/2;
+			}
+		}
+	}
+}
+
+function createMountainsUP(){
+	let x = xMin*2; //сначала коридор прямой
+	let y = yMin;
+	arrMountain=[[x,y]];
 	
 	for (let i = 0; i < pics; i++){
 		// let y = Math.random()*(yMax-yMin)+yMin;
 		// let x = Math.random()*(xMax-xMin)+xMin;
-		let x = xMin*2; //сначала коридор прямой
-		let y = yMax;
 		arrMountain.push([arrMountain[i][0] + x, y]);
 	}
 }
-function createMountainsDOWN(zeroX){
-	arrMountain2=[[zeroX,yMax*2]];
+function createMountainsDOWN(){
+	let x = xMin*2;
+	let y = myCanvas.height-yMin;
+	arrMountain2=[[x,y]];
 	
 	for (let i = 0; i < pics; i++){
 		//let y = (Math.random()*(yMax-yMin)+yMin) + (yMax - yMin)*a;
 		//let x = Math.random()*(xMax-xMin)+xMin;
-		let x = xMin*2;
-		let y = myCanvas.height-yMax;
 		arrMountain2.push([arrMountain2[i][0] + x, y]);
 	}
 }
@@ -125,7 +150,8 @@ function drawMountainsUP(){
 
 	if (arrMountain[0][0] <= 100 - xMax){	
 		arrMountain.shift();
-		//a -= .3; // условие сужения туннеля
+		a -= av; // условие сужения туннеля
+		console.log(a);
 	}
 
 }
