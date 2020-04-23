@@ -4,53 +4,68 @@ let ctx = myCanvas.getContext("2d");
 myCanvas.width = 1024;
 myCanvas.height = 768;
 
-const FPS = 10;
-//let x = 0;
-let y = 100;
+const FPS = 40;
+let x = 0;
+let y = Math.random()*(200-100)+100;
 let move = myCanvas.width;
 const size = 8;
 let arrMountain = [];
-setTimeout(mainLoop, 1000 / FPS); //TODO попробовать использовать setTimeout
 let mountain = Math.random()*20;	
-createMountains();
-	console.log(arrMountain);
+let pics = 8; //количество пиков
+let xStep = 10; //шаг эллемента массива по x
+
+setInterval(mainLoop, 1000 / FPS); //TODO попробовать использовать setTimeout
+
+
+createMountains(100);
+//createBigMontains();
+	
 
 function mainLoop() {	
-
-	let randomX = Math.random()*(50-1)+1;
-
-
+	console.log(arrMountain)
 	ctx.fillStyle = 'black';
 	ctx.fillRect(0, 0, myCanvas.width, myCanvas.height);	
-		ctx.lineWidth = 2;
+		ctx.lineWidth = 1;
 		ctx.fillStyle = 'white';
-		ctx.strokeStyle = 'red';
+		ctx.strokeStyle = 'salmon';
 
-		arrMountain.push([arrMountain[arrMountain.length-1][0] +mountain, Math.random()*(201-100)+100]);
-		arrMountain.shift();
-
+		//arrMountain.push([arrMountain[arrMountain.length-1][0] + xStep, y]);
+		//arrMountain.shift();
 		ctx.beginPath();
-		ctx.moveTo(arrMountain[0][0],arrMountain[0][1]);
+		ctx.moveTo(150,0);
+		ctx.lineTo(150, myCanvas.height);
+		ctx.lineTo(500, myCanvas.height);
+		ctx.lineTo(500, 0);
+		ctx.stroke();
+		ctx.closePath();
 
-	for (let i = 1; i < arrMountain.length; i++){
-		arrMountain[i][0] -= mountain;
-		//ctx.fillRect(arrMountain[i][0], arrMountain[i][1] , 10, 10);
+	ctx.beginPath();
+	ctx.moveTo(arrMountain[0][0],arrMountain[0][1]);
+	for (let i = 0; i < arrMountain.length; i++){
 		ctx.lineTo(arrMountain[i][0], arrMountain[i][1]);
+		ctx.stroke();
 	}
-			//ctx.closePath();
-		ctx.stroke();	
-
-
-	setTimeout(mainLoop, 1000 / FPS);
+	for (let i = 0; i < arrMountain.length; i++){
+		arrMountain[i][0] -= 1;
+	}	
+	if (arrMountain[arrMountain.length-1][0] <= 500){
+		let y = Math.random()*(200-100)+100;
+		arrMountain.push([arrMountain[arrMountain.length-1][0] + 50, y]);
+		arrMountain.shift();
+	}
 }
 
-function createMountains(){
-	arrMountain=[[0,0]];
-	for (let i = 0; i < 50; i++){
-		arrMountain.push([arrMountain[arrMountain.length-1][0] + 20, Math.random()*(201-100)+100]);
+function createMountains(x){
+	arrMountain=[[x,100]];
+	
+	for (let i = 0; i < pics; i++){
+		let y = Math.random()*(200-100)+100;
+		arrMountain.push([arrMountain[i][0] + 50, y]);
 	}
-
 }
+
+
+
 
 function KeyDown(event) {
 	switch(event.keyCode) {
