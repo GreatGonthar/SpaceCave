@@ -5,14 +5,15 @@ myCanvas.width = 1024;
 myCanvas.height = 768;
 
 const FPS = 40;
-let x = 0;
-let y = Math.random()*(200-100)+100;
-let move = myCanvas.width;
-const size = 8;
+let xStep = 50;
+let xMax = 800;
+let xMin = 100;
+let y = 0;
+let yMax = 200;
+let yMin = 100;
 let arrMountain = [];
-let mountain = Math.random()*20;	
 let pics = 8; //количество пиков
-let xStep = 10; //шаг эллемента массива по x
+
 
 setInterval(mainLoop, 1000 / FPS); //TODO попробовать использовать setTimeout
 
@@ -29,13 +30,11 @@ function mainLoop() {
 		ctx.fillStyle = 'white';
 		ctx.strokeStyle = 'salmon';
 
-		//arrMountain.push([arrMountain[arrMountain.length-1][0] + xStep, y]);
-		//arrMountain.shift();
 		ctx.beginPath();
-		ctx.moveTo(150,0);
-		ctx.lineTo(150, myCanvas.height);
-		ctx.lineTo(500, myCanvas.height);
-		ctx.lineTo(500, 0);
+		ctx.moveTo(xMin,0);
+		ctx.lineTo(xMin, myCanvas.height);
+		ctx.lineTo(xMax, myCanvas.height);
+		ctx.lineTo(xMax, 0);
 		ctx.stroke();
 		ctx.closePath();
 
@@ -48,19 +47,21 @@ function mainLoop() {
 	for (let i = 0; i < arrMountain.length; i++){
 		arrMountain[i][0] -= 1;
 	}	
-	if (arrMountain[arrMountain.length-1][0] <= 500){
-		let y = Math.random()*(200-100)+100;
-		arrMountain.push([arrMountain[arrMountain.length-1][0] + 50, y]);
+	if (arrMountain[arrMountain.length-1][0] <= xMax){
+		y = Math.random()*(yMax-yMin)+yMin;
+		arrMountain.push([arrMountain[arrMountain.length-1][0] + xStep, y]);
+	}
+	if (arrMountain[0][0] <= xMin - xStep){	
 		arrMountain.shift();
 	}
 }
 
-function createMountains(x){
-	arrMountain=[[x,100]];
+function createMountains(zeroX){
+	arrMountain=[[zeroX,100]];
 	
 	for (let i = 0; i < pics; i++){
-		let y = Math.random()*(200-100)+100;
-		arrMountain.push([arrMountain[i][0] + 50, y]);
+		y = Math.random()*(yMax-yMin)+yMin;
+		arrMountain.push([arrMountain[i][0] + xStep, y]);
 	}
 }
 
