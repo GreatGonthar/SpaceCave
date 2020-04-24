@@ -7,7 +7,7 @@ myCanvas.height = 768;
 const FPS = 60;
 //let x = 0;
 let xMax = 100;
-let xMin = 80;
+let xMin = 20;
 //let y = 0;
 let yMax = 300;
 let yMin = 20;
@@ -39,8 +39,8 @@ function mainLoop() {
 	ctx.fillStyle = 'black';
 	ctx.fillRect(0, 0, myCanvas.width, myCanvas.height);	
 		ctx.lineWidth = 4;
-		ctx.fillStyle = 'silver';
-		ctx.strokeStyle = 'salmon';
+		ctx.fillStyle = 'tan';
+		ctx.strokeStyle = 'DarkGrey';
 
 		ctx.beginPath();
 		ctx.moveTo(100,0);
@@ -52,7 +52,6 @@ function mainLoop() {
 
 			ctx.fillRect(ship.x, ship.y, ship.r, ship.r);
 			ctx.beginPath();
-
 			//ctx.arc(ship.x, ship.y, ship.r, 0, 2*Math.PI, true);	
 			ctx.closePath();
 			ctx.fill();
@@ -68,6 +67,11 @@ function mainLoop() {
 			if (ship.direction.move == true){					
 				ship.y -= 8;
 			}else {ship.y += gravity}	
+
+		ctx.fillStyle = "PowderBlue";		
+		ctx.font = "bold 30pt ubuntu";
+		ctx.fillText(`расстояние сужается: ${a.toFixed(2)}`, 120, 50);
+		ctx.strokeStyle = 'DarkGrey';
 
 	drawMountainsUP();
 	drawMountainsDOWN();
@@ -123,7 +127,7 @@ function CollisionMountainsDOWN(){
 		let lineShip2a = (arrMountain2[i][0]-arrMountain2[i-1][0])*(ship.y + ship.r -arrMountain2[i-1][1]);
 		let lineShipa = lineShip1a - lineShip2a;
 		
-		if (ship.x > arrMountain2[i-1][0] && ship.x + ship.r< arrMountain2[i][0]){ //делаем проверку на x отрезках
+		if (ship.x > arrMountain2[i-1][0] && ship.x + ship.r < arrMountain2[i][0]){ //делаем проверку на x отрезках
 			if (lineShip < 0 || lineShipa < 0){ 
 				ship.direction.x = -ship.direction.x*1.2;
 				ship.y -= 20;
