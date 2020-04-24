@@ -12,16 +12,17 @@ let xMin = 20;
 let yMax = 300;
 let yMin = 20;
 let a = 2 // коэффициен расстояния между верхом и низом (от 1 до 2)
-let av = .01 // скорость сужения (уменьшения коэффициента)
+let av = .07 // скорость сужения (уменьшения коэффициента)
 let arrMountain = [];
 let pics = 5; //количество пиков
 let gravity = 1;
-let bonus = [[100,100]];	
-
+let arrBonus=[[1,1]];
+let explosion = 0;
 let ship = {
 	x: myCanvas.width / 2,
 	y: myCanvas.height / 2,
 	r: 20,
+	death: 0,
 	direction: {
 		move: false,
 		x: 0,
@@ -31,6 +32,8 @@ let ship = {
 
 
 setInterval(mainLoop, 1000 / FPS); //TODO попробовать использовать setTimeout
+
+
 createMountainsUP();
 createMountainsDOWN();
 
@@ -38,43 +41,93 @@ createMountainsDOWN();
 function mainLoop() {
 	ctx.fillStyle = 'black';
 	ctx.fillRect(0, 0, myCanvas.width, myCanvas.height);	
+
 		ctx.lineWidth = 4;
 		ctx.fillStyle = 'tan';
 		ctx.strokeStyle = 'DarkGrey';
 
-			ctx.fillRect(ship.x, ship.y, ship.r, ship.r);
-			ctx.beginPath();
-			//ctx.arc(ship.x, ship.y, ship.r, 0, 2*Math.PI, true);	
-			ctx.closePath();
-			ctx.fill();
-
-			ship.x += ship.direction.x;
-
-			if (ship.x <= 0){
-				ship.x = 0;
-				ship.direction.x = -ship.direction.x/2;
-			}
-			if (ship.x + ship.r >= myCanvas.width){
-				ship.x = myCanvas.width - ship.r;
-				ship.direction.x = -ship.direction.x/2;
-			}
-			if (ship.direction.move == true){					
-				ship.y -= 8;
-			}else {ship.y += gravity}	
+	ctx.fillRect(ship.x, ship.y, ship.r, ship.r);
+	ctx.beginPath();
+	//ctx.arc(ship.x, ship.y, ship.r, 0, 2*Math.PI, true);	
+	ctx.closePath();
+	ctx.fill();
 
 		ctx.fillStyle = "PowderBlue";		
 		ctx.font = "bold 20pt ubuntu";
 		ctx.fillText(`расстояние сужается: ${a.toFixed(2)}`, 120, 50);
 		ctx.strokeStyle = 'DarkGrey';
+		console.log(explosion)
+		
 
 	drawMountainsUP();
 	drawMountainsDOWN();
+	shipMove();
 	CollisionMountainsUP();
 	CollisionMountainsDOWN();
 	CreateBonus();
+	drawBonus();
+	bonusCollision();
+	if (explosion == 1){
+		shipExplosion();
+	}
 }
-function CreateBonus(){
+function CreateBonus(){	
+	let my_random = Math.floor(Math.random()*10);
+	//console.log(my_random);
+		if (my_random == 4 && arrBonus[0][0] < 0){
+			arrBonus.push([arrMountain[arrMountain.length-1][0], arrMountain[arrMountain.length-1][1]+ship.r*2]);
+			arrBonus.shift();
+		}		
+}
 
+function drawBonus(){	
+	if (arrBonus != 0){
+		ctx.beginPath();
+		ctx.fillStyle = "GreenYellow";
+		ctx.arc(arrBonus[0][0], arrBonus[0][1], ship.r/2, 0, 2*Math.PI, true);
+		ctx.fill();
+		ctx.closePath();
+		arrBonus[0][0] -= 1;	
+			
+	}	
+}
+function shipExplosion(){
+		ctx.beginPath();
+		ctx.fillStyle = "red";
+		ctx.arc(ship.x, ship.y, ship.r, 0, 2*Math.PI, true);
+		ctx.fill();
+		ctx.closePath();
+		ship.death +=1;
+		if (ship.death > 1000){
+			ship.death = 0;
+			explosion = 0;
+			}
+}
+
+function bonusCollision(){
+	let gipotenuza = Math.sqrt((ship.x - arrBonus[0][0])**2 + (ship.y - arrBonus[0][1])**2);
+	console.log(gipotenuza);
+	if (gipotenuza < ship.r){
+		arrBonus[0][0] = -10;
+		a += av*15;
+		explosion = 1;
+	}
+}
+
+
+function shipMove(){
+	ship.x += ship.direction.x;
+	if (ship.x <= 0){
+		ship.x = 0;
+		ship.direction.x = -ship.direction.x/2;
+	}
+	if (ship.x + ship.r >= myCanvas.width){
+		ship.x = myCanvas.width - ship.r;
+		ship.direction.x = -ship.direction.x/2;
+	}
+	if (ship.direction.move == true){					
+		ship.y -= 8;
+	}else {ship.y += gravity}	
 }
 
 function CollisionMountainsUP(){
@@ -122,7 +175,7 @@ function CollisionMountainsDOWN(){
 		let lineShipa = lineShip1a - lineShip2a;
 		
 		if (ship.x > arrMountain2[i-1][0] && ship.x + ship.r < arrMountain2[i][0]){ //делаем проверку на x отрезках
-			if (lineShip < 0 || lineShipa < 0){ 
+			if (lineShip < 0 || lineShipa < 0 ){ 
 				ship.direction.x = -ship.direction.x*1.2;
 				ship.y -= 20;
 				//ship.y = myCanvas.height/2;
@@ -166,17 +219,14 @@ function drawMountainsUP(){
 	}	
 	let y = Math.random()*(yMax-yMin)+yMin;
 	let x = Math.random()*(xMax-xMin)+xMin;
-
+	if (a < 0){y = yMax};
 	if (arrMountain[arrMountain.length-1][0] <= myCanvas.width){		
 		arrMountain.push([arrMountain[arrMountain.length-1][0] + x, y]);
-
 	}
 
 	if (arrMountain[0][0] <= -100){	
 		arrMountain.shift();
-
-		a -= av; // условие сужения туннеля
-		
+		a -= av; // условие сужения туннеля				
 	}
 
 }
@@ -193,17 +243,19 @@ function drawMountainsDOWN(){
 	}	
 	let y = (Math.random()*(myCanvas.height-yMax*a)+yMax*a);
 	let x = Math.random()*(xMax-xMin)+xMin;
-
+	if (a < 0){y = yMax};
 	if (arrMountain2[arrMountain2.length-1][0] <= myCanvas.width){		
 		arrMountain2.push([arrMountain2[arrMountain2.length-1][0] + x, y]);
 	}
 
 	if (arrMountain2[0][0] <= -100){	
-		arrMountain2.shift();
+		arrMountain2.shift();		
 	}
+	
 }
 
 function KeyDown(event) {
+	if (explosion == 0){
 	switch(event.keyCode) {
 		case 32:
 			ship.direction.move = true;					
@@ -220,6 +272,7 @@ function KeyDown(event) {
 		case 40:				
 			break;
 	}
+}
 }
 
 function KeyUp(event) {
@@ -239,6 +292,7 @@ function KeyUp(event) {
 	}
 }
 
-document.addEventListener('keydown', KeyDown);
-document.addEventListener('keyup', KeyUp);
+	document.addEventListener('keydown', KeyDown);
+	document.addEventListener('keyup', KeyUp);
+
 
