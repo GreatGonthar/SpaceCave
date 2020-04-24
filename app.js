@@ -7,14 +7,14 @@ myCanvas.height = 768;
 const FPS = 60;
 //let x = 0;
 let xMax = 100;
-let xMin = 20;
+let xMin = 80;
 //let y = 0;
 let yMax = 300;
 let yMin = 20;
 let a = 2 // коэффициен расстояния между верхом и низом (от 1 до 2)
 let av = .01 // скорость сужения (уменьшения коэффициента)
 let arrMountain = [];
-let pics = 18; //количество пиков
+let pics = 5; //количество пиков
 let gravity = 1;
 let bonus = [[100,100]];	
 
@@ -38,7 +38,7 @@ createMountainsDOWN();
 function mainLoop() {
 	ctx.fillStyle = 'black';
 	ctx.fillRect(0, 0, myCanvas.width, myCanvas.height);	
-		ctx.lineWidth = 1;
+		ctx.lineWidth = 4;
 		ctx.fillStyle = 'silver';
 		ctx.strokeStyle = 'salmon';
 
@@ -92,13 +92,21 @@ function CollisionMountainsUP(){
 		// 	if (lineShip < 0 && lineShip > -1000){ship.y += 1}				
 		// }	
 
-		let lineShip1 = (ship.x + ship.r-arrMountain[i-1][0])*(arrMountain[i][1]-arrMountain[i-1][1]); 
+		let lineShip1 = (ship.x+ship.r-arrMountain[i-1][0])*(arrMountain[i][1]-arrMountain[i-1][1]); 
 		let lineShip2 = ((arrMountain[i][0]-arrMountain[i-1][0]))*(ship.y-arrMountain[i-1][1]);
 		let lineShip = lineShip1 - lineShip2;
-		
+
+		let lineShip1a = (ship.x-arrMountain[i-1][0])*(arrMountain[i][1]-arrMountain[i-1][1]); 
+		let lineShip2a = ((arrMountain[i][0]-arrMountain[i-1][0]))*(ship.y-arrMountain[i-1][1]);
+		let lineShipa = lineShip1a - lineShip2a;
+
+
+
 		if (ship.x > arrMountain[i-1][0] && ship.x + ship.r < arrMountain[i][0]){ //делаем проверку на x отрезках
-			if (lineShip > 0){   // все что выше линии, это плюс
-				ship.y = myCanvas.height/2;
+			if (lineShip > 0 || lineShipa > 0){   // все что выше линии, это плюс
+				ship.direction.x = -ship.direction.x*1.2;
+				ship.y += 20;
+				//ship.y = myCanvas.height/2;
 			}
 		}
 	}
@@ -107,13 +115,19 @@ function CollisionMountainsUP(){
 function CollisionMountainsDOWN(){
 
 	for (let i = 1; i < (arrMountain2.length-1); i++){	
-		let lineShip1 = (ship.x + ship.r-arrMountain2[i-1][0])*(arrMountain2[i][1]-arrMountain2[i-1][1]); 
-		let lineShip2 = (arrMountain2[i][0]-arrMountain2[i-1][0])*(ship.y + ship.r-arrMountain2[i-1][1]);
+		let lineShip1 = (ship.x-arrMountain2[i-1][0])*(arrMountain2[i][1]-arrMountain2[i-1][1]); 
+		let lineShip2 = (arrMountain2[i][0]-arrMountain2[i-1][0])*(ship.y + ship.r -arrMountain2[i-1][1]);
 		let lineShip = lineShip1 - lineShip2;
+
+		let lineShip1a = (ship.x + ship.r - arrMountain2[i-1][0])*(arrMountain2[i][1]-arrMountain2[i-1][1]); 
+		let lineShip2a = (arrMountain2[i][0]-arrMountain2[i-1][0])*(ship.y + ship.r -arrMountain2[i-1][1]);
+		let lineShipa = lineShip1a - lineShip2a;
 		
 		if (ship.x > arrMountain2[i-1][0] && ship.x + ship.r< arrMountain2[i][0]){ //делаем проверку на x отрезках
-			if (lineShip < 0){   // все что выше линии, это плюс
-				ship.y = myCanvas.height/2;
+			if (lineShip < 0 || lineShipa < 0){ 
+				ship.direction.x = -ship.direction.x*1.2;
+				ship.y -= 20;
+				//ship.y = myCanvas.height/2;
 			}
 		}
 	}
@@ -164,7 +178,7 @@ function drawMountainsUP(){
 		arrMountain.shift();
 
 		a -= av; // условие сужения туннеля
-		console.log(bonus);
+		
 	}
 
 }
