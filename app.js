@@ -42,26 +42,20 @@ function mainLoop() {
 		ctx.fillStyle = 'tan';
 		ctx.strokeStyle = 'DarkGrey';
 
-		ctx.beginPath();
-		ctx.moveTo(100,0);
-		ctx.lineTo(100, myCanvas.height);
-		ctx.lineTo(myCanvas.width-100, myCanvas.height);
-		ctx.lineTo(myCanvas.width-100, 0);
-		ctx.stroke();
-		ctx.closePath();
-
 			ctx.fillRect(ship.x, ship.y, ship.r, ship.r);
 			ctx.beginPath();
 			//ctx.arc(ship.x, ship.y, ship.r, 0, 2*Math.PI, true);	
 			ctx.closePath();
 			ctx.fill();
+
 			ship.x += ship.direction.x;
-			if (ship.x <= 100){
-				ship.x = 100;
+
+			if (ship.x <= 0){
+				ship.x = 0;
 				ship.direction.x = -ship.direction.x/2;
 			}
-			if (ship.x >= myCanvas.width-100){
-				ship.x = myCanvas.width-100;
+			if (ship.x + ship.r >= myCanvas.width){
+				ship.x = myCanvas.width - ship.r;
 				ship.direction.x = -ship.direction.x/2;
 			}
 			if (ship.direction.move == true){					
@@ -69,7 +63,7 @@ function mainLoop() {
 			}else {ship.y += gravity}	
 
 		ctx.fillStyle = "PowderBlue";		
-		ctx.font = "bold 30pt ubuntu";
+		ctx.font = "bold 20pt ubuntu";
 		ctx.fillText(`расстояние сужается: ${a.toFixed(2)}`, 120, 50);
 		ctx.strokeStyle = 'DarkGrey';
 
@@ -173,12 +167,12 @@ function drawMountainsUP(){
 	let y = Math.random()*(yMax-yMin)+yMin;
 	let x = Math.random()*(xMax-xMin)+xMin;
 
-	if (arrMountain[arrMountain.length-1][0] <= myCanvas.width-100){		
+	if (arrMountain[arrMountain.length-1][0] <= myCanvas.width){		
 		arrMountain.push([arrMountain[arrMountain.length-1][0] + x, y]);
 
 	}
 
-	if (arrMountain[0][0] <= 100 - xMax){	
+	if (arrMountain[0][0] <= -100){	
 		arrMountain.shift();
 
 		a -= av; // условие сужения туннеля
@@ -200,11 +194,11 @@ function drawMountainsDOWN(){
 	let y = (Math.random()*(myCanvas.height-yMax*a)+yMax*a);
 	let x = Math.random()*(xMax-xMin)+xMin;
 
-	if (arrMountain2[arrMountain2.length-1][0] <= myCanvas.width-100){		
+	if (arrMountain2[arrMountain2.length-1][0] <= myCanvas.width){		
 		arrMountain2.push([arrMountain2[arrMountain2.length-1][0] + x, y]);
 	}
 
-	if (arrMountain2[0][0] <= 100 - xMax){	
+	if (arrMountain2[0][0] <= -100){	
 		arrMountain2.shift();
 	}
 }
