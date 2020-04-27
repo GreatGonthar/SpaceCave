@@ -12,17 +12,18 @@ let xMin = 20;
 let yMax = 300;
 let yMin = 20;
 let a = 2 // коэффициен расстояния между верхом и низом (от 1 до 2)
-let av = .07 // скорость сужения (уменьшения коэффициента)
+let av = .01 // скорость сужения (уменьшения коэффициента)
 let arrMountain = [];
 let pics = 5; //количество пиков
 let gravity = 1;
 let arrBonus=[[1,1]];
-let explosion = 0;
+let explosion = false;
 let ship = {
 	x: myCanvas.width / 2,
 	y: myCanvas.height / 2,
 	r: 20,
 	death: 0,
+	lives: 3,
 	direction: {
 		move: false,
 		x: 0,
@@ -55,6 +56,7 @@ function mainLoop() {
 		ctx.fillStyle = "PowderBlue";		
 		ctx.font = "bold 20pt ubuntu";
 		ctx.fillText(`расстояние сужается: ${a.toFixed(2)}`, 120, 50);
+		ctx.fillText(`жизни: ${ship.lives}`, 120, 80);
 		ctx.strokeStyle = 'DarkGrey';
 		console.log(explosion)
 		
@@ -67,12 +69,13 @@ function mainLoop() {
 	CreateBonus();
 	drawBonus();
 	bonusCollision();
-	if (explosion == 1){
+	GameOver();
+	if (explosion == true){
 		shipExplosion();
 	}
 }
 function CreateBonus(){	
-	let my_random = Math.floor(Math.random()*10);
+	let my_random = Math.floor(Math.random()*1000);
 	//console.log(my_random);
 		if (my_random == 4 && arrBonus[0][0] < 0){
 			arrBonus.push([arrMountain[arrMountain.length-1][0], arrMountain[arrMountain.length-1][1]+ship.r*2]);
@@ -94,14 +97,28 @@ function drawBonus(){
 function shipExplosion(){
 		ctx.beginPath();
 		ctx.fillStyle = "red";
-		ctx.arc(ship.x, ship.y, ship.r, 0, 2*Math.PI, true);
+		ctx.arc(ship.x+ship.r/2, ship.y+ship.r/2, ship.r, 0, 2*Math.PI, true);
 		ctx.fill();
 		ctx.closePath();
 		ship.death +=1;
-		if (ship.death > 1000){
+		ctx.fillText(`${Math.floor((600-ship.death)/100)}`, myCanvas.width/2, myCanvas.height/2);
+		if (ship.death > 500){
 			ship.death = 0;
-			explosion = 0;
+			explosion = false;
+			ship.lives--;
+			ship.x = myCanvas.width/2;
+			ship.y = yMax;
 			}
+}
+
+function GameOver(){
+	if (ship.lives < 0){
+		alert("Начать снова");
+		ship.lives = 3;
+		a = 2;
+		createMountainsUP();
+		createMountainsDOWN();
+	}
 }
 
 function bonusCollision(){
@@ -110,7 +127,7 @@ function bonusCollision(){
 	if (gipotenuza < ship.r){
 		arrBonus[0][0] = -10;
 		a += av*15;
-		explosion = 1;
+		//explosion = true;
 	}
 }
 
@@ -155,9 +172,16 @@ function CollisionMountainsUP(){
 
 		if (ship.x > arrMountain[i-1][0] && ship.x + ship.r < arrMountain[i][0]){ //делаем проверку на x отрезках
 			if (lineShip > 0 || lineShipa > 0){   // все что выше линии, это плюс
-				ship.direction.x = -ship.direction.x*1.2;
-				ship.y += 20;
-				//ship.y = myCanvas.height/2;
+				if (explosion == false){
+					explosion = true;
+				// ship.direction.x = -ship.direction.x*1.2; // отталкивание от поверхности
+				// ship.y += 20;
+
+				}else {
+					ship.direction.x = 0;
+					ship.x -=1; 
+					ship.y = arrMountain[i][1];
+				}	
 			}
 		}
 	}
@@ -175,12 +199,22 @@ function CollisionMountainsDOWN(){
 		let lineShipa = lineShip1a - lineShip2a;
 		
 		if (ship.x > arrMountain2[i-1][0] && ship.x + ship.r < arrMountain2[i][0]){ //делаем проверку на x отрезках
-			if (lineShip < 0 || lineShipa < 0 ){ 
-				ship.direction.x = -ship.direction.x*1.2;
-				ship.y -= 20;
+			if (lineShip < 0 || lineShipa < 0){ 
+				if (explosion == false){
+
+					explosion = true;
+					// ship.direction.x = -ship.direction.x*1.2; // отталкивание от поверхности
+					// ship.y -= 20;	
+				} else {
+					ship.direction.x = 0;
+					ship.x -=1; 
+					ship.y = arrMountain2[i][1];
+				}				
 				//ship.y = myCanvas.height/2;
-			}
+				
+			}			
 		}
+
 	}
 }
 
@@ -255,7 +289,7 @@ function drawMountainsDOWN(){
 }
 
 function KeyDown(event) {
-	if (explosion == 0){
+	if (explosion == false){
 	switch(event.keyCode) {
 		case 32:
 			ship.direction.move = true;					
